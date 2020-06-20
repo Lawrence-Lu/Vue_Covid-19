@@ -31,14 +31,13 @@
   </el-form-item>
   
   <el-form-item>
-    <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
-    <el-button @click="resetForm('ruleForm')">重置</el-button>  
-    <el-button @click="receive()">Receive</el-button>
+   
     <el-button @click="draw()">画图</el-button>
-    <el-button @click="clean()">清图</el-button>
+    
   </el-form-item>
   
-    <div ref="linechart" style="height:400px;width:400px"></div>
+    <div id="confirmedchart" style="height:400px;width:400px"></div>
+    <div id="deathchart" style="height:400px;width:400px"></div>
   </el-form>
  
  
@@ -71,21 +70,104 @@ import echarts from "echarts";
           // ],
         
         },
-        lineOption: {
-          tooltip:{},
-          xAxis: {
+        lineOption : {
+                title: {
+                    text: '确诊病例'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['真实确诊病例', '预测确诊病例']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {},
+                        dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ["04-22","04-23","04-24","04-25","04-26","04-27","04-28","04-29"]
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '真实确诊病例',
+                        type: 'line',
+                        
+                        data: [120, 132, 142, 154, 170, 200, 240,290]
+                    },
+                    {
+                        name: '预测确诊病例',
+                        type: 'line',
+            
+                        data: [121, 134, 149, 160, 178, 210, 240,300]
+                    },
+                  
+                ]
+},
+
+  lineOption2 : {
+    title: {
+        text: '死亡病例'
+    },
+    tooltip: {
+        trigger: 'axis'
+    },
+    legend: {
+        data: ['真实死亡病例', '预测死亡病例']
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    toolbox: {
+        feature: {
+            saveAsImage: {},
+            dataZoom: {
+                    yAxisIndex: 'none'
+                },
+        }
+    },
+    xAxis: {
         type: 'category',
-        data: ''
+        boundaryGap: false,
+        data: ["04-22","04-23","04-24","04-25","04-26","04-27","04-28","04-29"]
     },
     yAxis: {
-        type: 'value' 
+        type: 'value'
     },
-    series: {
-        data: '',
-        type: 'line'
-    }
-
+    series: [
+        {
+            name: '真实死亡病例',
+            type: 'line',
+            
+            data: [20, 32, 41, 56, 70, 90, 100,103]
         },
+        {
+            name: '预测死亡病例',
+            type: 'line',
+            
+            data: [20, 28, 42, 54, 68, 86, 100,115]
+        },
+       
+    ]
+}
+        ,
         options: [{
           value: 'China_Hubei',
           label: '中国湖北'
@@ -110,42 +192,45 @@ import echarts from "echarts";
          })
      },
     methods: {
-      submitForm(formName) {
-        const _this=this
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            
-              console.log(_this.ruleForm);
-            
-            alert('submit!');
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      },
-      resetForm(formName) {
-        this.$refs[formName].resetFields();
-      },
-      receive(){
-        const _this=this;
-        axios.get("../../static/case.json").then(function (resp){
-             _this.lineOption.series.data=resp.data.case;
-             _this.lineOption.xAxis.data=resp.data.date;
-         })
-      },
+      
+      
+     
       draw(){
         const _this=this;
-        
-        let mychart=echarts.init(this.$refs.linechart);
+        console.log(this.ruleForm)
+         
+        //  axios.post("",this.ruleForm).then(function(resp){
+        //     if (resp.mes=="success"){
+        //        _this.lineOption.series.data=resp.data.currentComfirmedCount;
+        //      _this.lineOption.xAxis.data=resp.data.date;
+        //     }
+        // })
+        let mychart=echarts.init(document.getElementById("confirmedchart"));
         mychart.setOption(_this.lineOption)
+
+        let deathChart=echarts.init(document.getElementById("deathchart"));
+        deathChart.setOption(_this.lineOption2)
       },
-      clean(){
-        const _this=this;
-        _this.lineOption.series.data='';
-        _this.lineOption.xAxis.data='';
-      }
+     
     },
     
   }
 </script>
+
+<style  scoped>
+
+
+
+.el-form{
+   
+  width: 100%;
+  height: 100%;
+}
+#confirmedchart {
+  float: left;
+}
+#deathchart {
+  
+  float: right;
+}
+</style>

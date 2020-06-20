@@ -12,18 +12,18 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: '导航1',
+      name: 'Covid-19病例预测',
       component: Index,
       redirect: "/pageOne",
       children:[
         {
           path:'/pageOne',
-          name :'页面1',
+          name :'EDA',
           component: PageOne
         },
         {
           path:'/pageTwo',
-          name :'页面2',
+          name :'预测病例',
           component: PageTwo
         }
 

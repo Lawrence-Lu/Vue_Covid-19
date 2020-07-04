@@ -13,6 +13,17 @@
     </el-select>
   </el-form-item>
 
+   <el-form-item label="预测模型" prop="modle">  <!--prop:对应哪条校验规则-->
+    <el-select v-model="ruleForm.modle" placeholder="请选择一个预测模型">
+       <el-option
+        v-for="item in modleOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value">
+        </el-option>
+    </el-select>
+  </el-form-item>
+
   <el-form-item label="查询时间段" required>
     <el-col :span="6">
       <el-form-item prop="date1">
@@ -59,16 +70,21 @@ import echarts from "echarts";
         ruleForm: {
           region: '',
           date1: '',
+          modle: ''
         },
+        case_chart:'',
+        fatal_chart:'',
         rules: {
          
           region: [
-            { required: true, message: '请选择活动区域', trigger: 'change' }
+            { required: true, message: '请选择地区', trigger: 'change' },
           ],
           // date1: [
           //   { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
           // ],
-        
+          modle: [
+            { required: true, message: '请选择模型', trigger: 'change' },
+          ],
         },
         lineOption : {
                 title: {
@@ -168,12 +184,12 @@ import echarts from "echarts";
     ]
 }
         ,
-        options: [{
+    options: [{
           value: 'China_Hubei',
           label: '中国湖北'
         }, {
-          value: 'America_Califonia',
-          label: '美国加州'
+          value: 'US',
+          label: '美国'
         }, {
           value: 'Italy',
           label: '意大利'
@@ -183,13 +199,33 @@ import echarts from "echarts";
         }, {
           value: 'Spain',
           label: '西班牙'
+    }],
+
+    modleOptions: [{
+          value: 'RandomForest',
+          label: '随机森林'
+        }, {
+          value: 'LightGBM',
+          label: 'LightGBM'
+        }, {
+          value: 'XGBoost',
+          label: 'XGBoost'
         }],
-      };
-    },
+
+      }
+
+     
+  },
      created(){
          axios.get("../../static/case.json").then(function (resp){
              console.log(resp)
          })
+     },
+
+     mounted(){
+       this.case_chart=echarts.init(document.getElementById("confirmedchart"));
+       this.fatal_chart=echarts.init(document.getElementById("deathchart"));
+
      },
     methods: {
       
@@ -199,17 +235,22 @@ import echarts from "echarts";
         const _this=this;
         console.log(this.ruleForm)
          
-        //  axios.post("",this.ruleForm).then(function(resp){
+        //  axios.post("URL",this.ruleForm).then(function(resp){
         //     if (resp.mes=="success"){
-        //        _this.lineOption.series.data=resp.data.currentComfirmedCount;
-        //      _this.lineOption.xAxis.data=resp.data.date;
+        //        _this.lineOption.series[0].data=resp.data.confirmed_case;
+           //        _this.lineOption.series[1].data=resp.data.pre_confirm_case
+        //      _this.lineOption.xAxis.data=resp.data.date
+                  
+         //      _this.lineOption2.series[0].data=resp.data.fatal_case;
+         //      _this.lineOption2.series[1].data=resp.data.pre_fatal_case;
+        //      _this.lineOption2.xAxis.data=resp.data.date
         //     }
         // })
-        let mychart=echarts.init(document.getElementById("confirmedchart"));
-        mychart.setOption(_this.lineOption)
+        
 
-        let deathChart=echarts.init(document.getElementById("deathchart"));
-        deathChart.setOption(_this.lineOption2)
+        // 画图语句
+        this.case_chart.setOption(_this.lineOption)
+        this.fatal_chart.setOption(_this.lineOption2)
       },
      
     },

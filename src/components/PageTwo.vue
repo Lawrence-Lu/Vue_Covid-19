@@ -2,7 +2,7 @@
   <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
   
   
-  <el-form-item label="国家/地区" prop="region">  <!--prop:对应哪条校验规则-->
+  <el-form-item label="国家/地区" prop="region">  <!--国家选择-->
     <el-select v-model="ruleForm.region" placeholder="请选择一个国家或地区">
        <el-option
         v-for="item in options"
@@ -13,7 +13,7 @@
     </el-select>
   </el-form-item>
 
-   <el-form-item label="预测模型" prop="modle">  <!--prop:对应哪条校验规则-->
+   <el-form-item label="预测模型" prop="modle">  <!--prop:模型选择-->
     <el-select v-model="ruleForm.modle" placeholder="请选择一个预测模型">
        <el-option
         v-for="item in modleOptions"
@@ -24,7 +24,7 @@
     </el-select>
   </el-form-item>
 
-  <el-form-item label="查询时间段" required>
+  <el-form-item label="查询时间段" required><!--预测时间段选择-->
     <el-col :span="6">
       <el-form-item prop="date1">
         <el-date-picker 
@@ -47,8 +47,8 @@
     
   </el-form-item>
   
-    <div id="confirmedchart" style="height:400px;width:400px"></div>
-    <div id="deathchart" style="height:400px;width:400px"></div>
+    <div id="confirmedchart" style="height:400px;width:400px"></div>  <!--确诊病例可视化-->
+    <div id="deathchart" style="height:400px;width:400px"></div> <!--死亡病例可视化-->  
   </el-form>
  
  
@@ -122,12 +122,16 @@ import echarts from "echarts";
                     {
                         name: '真实确诊病例',
                         type: 'line',
+                        itemStyle: {
+                          color: 'rgb(38, 166, 226)'}, //改变折线颜色
                         
                         data: [120, 132, 142, 154, 170, 200, 240,290]
                     },
                     {
                         name: '预测确诊病例',
                         type: 'line',
+                        itemStyle: {
+                          color: 'rgb(255,0,0)'}, //改变折线颜色
             
                         data: [121, 134, 149, 160, 178, 210, 240,300]
                     },
@@ -171,13 +175,15 @@ import echarts from "echarts";
         {
             name: '真实死亡病例',
             type: 'line',
-            
+            itemStyle: {
+                          color: 'rgb(38, 166, 226)'}, //改变折线颜色
             data: [20, 32, 41, 56, 70, 90, 100,103]
         },
         {
             name: '预测死亡病例',
             type: 'line',
-            
+            itemStyle: {
+                          color: 'rgb(255, 0, 0)'}, //改变折线颜色
             data: [20, 28, 42, 54, 68, 86, 100,115]
         },
        
@@ -233,19 +239,34 @@ import echarts from "echarts";
      
       draw(){
         const _this=this;
-        console.log(this.ruleForm)
+        // console.log(this.ruleForm)
          
-        //  axios.post("URL",this.ruleForm).then(function(resp){
-        //     if (resp.mes=="success"){
-        //        _this.lineOption.series[0].data=resp.data.confirmed_case;
-           //        _this.lineOption.series[1].data=resp.data.pre_confirm_case
-        //      _this.lineOption.xAxis.data=resp.data.date
-                  
-         //      _this.lineOption2.series[0].data=resp.data.fatal_case;
-         //      _this.lineOption2.series[1].data=resp.data.pre_fatal_case;
-        //      _this.lineOption2.xAxis.data=resp.data.date
-        //     }
-        // })
+         axios.get("../../static/Lgb.json").then(function(resp){
+            
+           console.log(resp.data)
+          let data = resp.data.retlist
+          let dates = []
+          let confirmedCases = []
+          let fatalities = []
+          let predConfirmedCases = []
+          let predFatalities = []
+          for (let item of data) {
+            dates.push(item.date)
+            confirmedCases.push(item.confirmedCases)
+            fatalities.push(item.fatalities)
+            predConfirmedCases.push(item.predConfirmedCases)
+            predFatalities.push(item.predFatalities)
+          }
+             _this.lineOption.xAxis.data=dates
+            _this.lineOption.series[0].data=confirmedCases
+             _this.lineOption.series[1].data=predConfirmedCases
+             
+               _this.lineOption2.xAxis.data=dates   
+              _this.lineOption2.series[0].data=fatalities
+              _this.lineOption2.series[1].data=predFatalities
+             
+            
+        })
         
 
         // 画图语句
